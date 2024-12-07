@@ -1,0 +1,48 @@
+services:
+  # Backend service
+  backend:
+    build:
+      context: ./backend  # Backend folder ka path
+    ports:
+      - "5000:5000"  # Backend ko port 5000 pe expose karna
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+      - DATABASE_URL=mysql://root:mudasir47@mysql:3306/api_data  # MySQL database connection string
+    volumes:
+      - ./backend:/app
+    networks:
+      - app-network
+    depends_on:
+      - mysql  # Backend ko MySQL pe depend karna
+
+  # Frontend service
+  frontend:
+    build:
+      context: ./frontend  # Frontend folder ka path
+    ports:
+      - "3000:3000"  # Frontend ko port 3000 pe expose karna
+    networks:
+      - app-network
+
+  # MySQL service
+  mysql:
+    image: mysql:5.7  # MySQL image ka version
+    environment:
+      MYSQL_ROOT_PASSWORD: mudasir47  # MySQL root password (aap ne jo diya tha)
+      MYSQL_DATABASE: api_data  # Aap jo database ka naam rakhna chahte hain
+    volumes:
+      - mysql-data:/var/lib/mysql  # Persistent volume to store MySQL data
+    ports:
+      - "3306:3306"  # MySQL ko port 3306 pe expose karna
+    networks:
+      - app-network
+
+# Define the network for the services
+networks:
+  app-network:
+    driver: bridge
+
+# Define persistent volumes
+volumes:
+  mysql-data:
